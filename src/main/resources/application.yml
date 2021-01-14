@@ -1,0 +1,54 @@
+spring:
+  application:
+    name: configserver #c'est le nom par défaut dans toute l'architecture spring cloud. Donc ne pas modifier
+  profiles:
+    active:
+    - native
+  cloud:
+    bus:
+      enabled: true  
+      refresh:
+        enabled: false
+      env:
+        enabled: false  
+      trace:
+        enabled: false
+      destination: sys.spring-cloud-bus.refresh
+    stream:
+      bindings:
+        springCloudBusInput:
+          binder: bus
+          destination: sys.spring-cloud-bus.refresh
+          content-type: application/json
+          group: ${spring.application.name}.bus.${hostname}
+        springCloudBusOutput:
+          binder: bus
+          destination: sys.spring-cloud-bus.refresh
+          content-type: application/json
+          group: ${spring.application.name}.bus.${hostname}
+      binders:
+        bus:
+          type: kafka
+          defaultCandidate: false
+          environment:
+            spring:
+              cloud:
+                stream:
+                  kafka:
+                    binder:
+                      brokers: mac-0385.huge.ad.hcuge.ch:9092
+server:
+  port: 8888
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+    enabled-by-default: true        
+  server:
+    port: 8889
+logging:
+  level:
+    root: INFO
+    org.springframework.*: INFO
+                      
